@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Interactivo - Jesús Antonio De León Reyes</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Sans y Noto Serif -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        violetFractal: '#4B0082',
+                        goldFractal: '#DAA520',
+                        darkBg: '#0B0914',
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans', 'sans-serif'],
+                        serif: ['Noto Serif', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #05040a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        /* Glassmorphic card styling */
+        .glass-card {
+            background: rgba(15, 11, 28, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(218, 165, 32, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(75, 0, 130, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(218, 165, 32, 0.35);
+            box-shadow: 0 12px 40px 0 rgba(75, 0, 130, 0.35);
+            transform: translateY(-2px);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05040a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4B0082;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #DAA520;
+        }
+        /* Print and Screenshot Optimization */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .glass-card {
+                background: white !important;
+                border: 1px solid #ddd !important;
+                color: black !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+            }
+            canvas {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-violetFractal selection:text-white">
+
+    <!-- CANVAS INTERACTIVO DE FRACTALES DE JULIA -->
+    <canvas id="juliaCanvas" class="fixed top-0 left-0 w-full h-full -z-10 opacity-40 pointer-events-none"></canvas>
+
+    <!-- HEADER DE CONTROL INTERACTIVO (NO IMPRIMIBLE) -->
+    <header class="no-print sticky top-0 z-50 glass-card mx-4 my-3 rounded-2xl px-6 py-3 flex flex-wrap items-center justify-between gap-4 border-b border-goldFractal/20">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-violetFractal rounded-full animate-ping"></div>
+            <span class="text-sm font-semibold tracking-wider text-goldFractal uppercase font-serif">Motor Fractal de Julia V1.2</span>
+        </div>
+        
+        <!-- Controles Rápidos del Fractal -->
+        <div class="flex items-center gap-6 text-xs text-gray-300">
+            <div class="hidden sm:flex items-center gap-2">
+                <span class="opacity-70">Constante Real (c_r):</span>
+                <input type="range" id="paramCr" min="-1" max="1" step="0.01" value="-0.7" class="w-24 h-1 bg-violetFractal rounded-lg appearance-none cursor-pointer accent-goldFractal">
+                <span id="valCr" class="font-mono text-goldFractal font-bold w-10 text-right">-0.70</span>
+            </div>
+            <div class="hidden sm:flex items-center gap-2">
+                <span class="opacity-70">Constante Imag (c_i):</span>
+                <input type="range" id="paramCi" min="-1" max="1" step="0.01" value="0.27" class="w-24 h-1 bg-violetFractal rounded-lg appearance-none cursor-pointer accent-goldFractal">
+                <span id="valCi" class="font-mono text-goldFractal font-bold w-10 text-right">0.27</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="toggleAnimation" class="bg-violetFractal hover:bg-violet-800 text-white font-semibold py-1.5 px-3 rounded-lg border border-goldFractal/30 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-play" id="playIcon"></i> <span id="btnText">Animar</span>
+                </button>
+                <button onclick="window.print()" class="bg-goldFractal hover:bg-yellow-600 text-darkBg font-bold py-1.5 px-3 rounded-lg transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-camera"></i> Capturar / PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL DEL CV -->
+    <main class="max-w-6xl mx-auto px-4 py-6 md:py-12">
+        
+        <!-- SECCIÓN DE CABECERA / DATOS PERSONALES -->
+        <section class="glass-card rounded-3xl p-6 md:p-10 mb-8 relative overflow-hidden">
+            <!-- Detalles Decorativos Dorados -->
+            <div class="absolute top-0 right-0 w-32 h-32 opacity-10 bg-gradient-to-br from-goldFractal to-transparent pointer-events-none rounded-full blur-2xl"></div>
+            
+            <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                <!-- Foto de Perfil con Marco de Proporción Áurea -->
+                <div class="relative group">
+                    <div class="absolute -inset-1.5 bg-gradient-to-r from-violetFractal via-goldFractal to-violetFractal rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                    <div class="relative w-40 h-52 md:w-44 md:h-56 bg-slate-950 rounded-2xl overflow-hidden border border-goldFractal/30 flex items-center justify-center">
+                        <!-- Intento de cargar la foto original, con fallback hermoso si falla -->
+                        <img src="IMG_20260127_051656.jpg" alt="Jesús Antonio De León Reyes" 
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none'; document.getElementById('imageFallback').style.display='flex';">
+                        
+                        <!-- Fallback Vectorial si no detecta la imagen local -->
+                        <div id="imageFallback" class="hidden absolute inset-0 flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-violetFractal/40 text-center p-4">
+                            <i class="fa-solid fa-user-tie text-4xl text-goldFractal mb-2"></i>
+                            <span class="text-xs font-semibold uppercase tracking-widest text-gray-300">Jesús Antonio</span>
+                            <span class="text-[10px] text-goldFractal/80 mt-1">Cargar Foto Local</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nombre y Título Profesional -->
+                <div class="flex-1 text-center md:text-left">
+                    <h1 class="text-3xl md:text-5xl font-bold tracking-tight font-serif text-white mb-2">
+                        Jesús Antonio <span class="text-goldFractal">De León Reyes</span>
+                    </h1>
+                    <p class="text-lg md:text-xl font-medium text-gray-300 mb-1 flex flex-wrap justify-center md:justify-start gap-2 items-center">
+                        <span>Presidente Fundador ANEFF</span>
+                        <span class="hidden md:inline text-goldFractal/50">•</span>
+                        <span class="text-goldFractal">Director de Proyecto Educativo</span>
+                    </p>
+                    <p class="text-sm text-gray-400 mb-6 flex items-center justify-center md:justify-start gap-2">
+                        <i class="fa-solid fa-location-dot text-violetFractal text-base"></i> San Buenaventura, Ixtapaluca, Edo. de México
+                    </p>
+
+                    <!-- Tarjetas de Contacto Rápidas -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto md:mx-0 text-sm">
+                        <a href="tel:5547312303" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-violetFractal/10 hover:bg-violetFractal/25 border border-violetFractal/20 transition-all">
+                            <div class="w-8 h-8 rounded-lg bg-violetFractal/30 flex items-center justify-center text-goldFractal">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                            </div>
+                            <span class="font-mono text-gray-200 hover:text-white">55 4731 2303</span>
+                        </a>
+                        <a href="mailto:jesusdeleonreyes027@gmail.com" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-violetFractal/10 hover:bg-violetFractal/25 border border-violetFractal/20 transition-all">
+                            <div class="w-8 h-8 rounded-lg bg-violetFractal/30 flex items-center justify-center text-goldFractal">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <span class="font-mono text-gray-200 hover:text-white truncate">jesusdeleonreyes027@gmail.com</span>
+                        </a>
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-violetFractal/10 border border-violetFractal/20 sm:col-span-2">
+                            <div class="w-8 h-8 rounded-lg bg-violetFractal/30 flex items-center justify-center text-goldFractal">
+                                <i class="fa-brands fa-facebook"></i>
+                            </div>
+                            <span class="text-gray-200">Jesús Antonio De León Reyes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE PERFIL Y EXPERIENCIA (DOS COLUMNAS) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- COLUMNA IZQUIERDA (Perfil, Habilidades, Certificaciones) -->
+            <div class="lg:col-span-1 space-y-8">
+                
+                <!-- Perfil Profesional -->
+                <section class="glass-card rounded-2xl p-6">
+                    <h2 class="text-xl font-bold font-serif text-white mb-4 flex items-center gap-2 border-b border-goldFractal/20 pb-2">
+                        <i class="fa-solid fa-compass text-goldFractal"></i> Perfil Profesional
+                    </h2>
+                    <div class="space-y-4 text-sm leading-relaxed text-gray-300">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-goldFractal mb-1">Misión</h3>
+                            <p>Proveer inteligencia financiera de alto nivel mediante el procesamiento de datos y modelos matemáticos, transformando información compleja en reportes estratégicos escritos que fundamenten la toma de decisiones corporativas y la mitigación de riesgos.</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-goldFractal mb-1">Visión</h3>
+                            <p>Ser un pilar técnico en la estructura de análisis de la organización, implementando sistemas de evaluación financiera (Web3/Python) que automaticen procesos y garanticen la precisión operativa sin depender de métodos tradicionales de gestión.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Habilidades Técnicas -->
+                <section class="glass-card rounded-2xl p-6">
+                    <h2 class="text-xl font-bold font-serif text-white mb-4 flex items-center gap-2 border-b border-goldFractal/20 pb-2">
+                        <i class="fa-solid fa-layer-group text-goldFractal"></i> Habilidades Técnicas
+                    </h2>
+                    <div class="space-y-4 text-sm">
+                        <!-- Categoría 1 -->
+                        <div>
+                            <h3 class="font-semibold text-goldFractal mb-2 flex items-center gap-1.5">
+                                <i class="fa-solid fa-code text-xs"></i> Tecnología y Datos
+                            </h3>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Python</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Flask (Backend)</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">SQL & JSON</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Web3 & Blockchain</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Tokens (EDUFT)</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">SBT (Sovereign Identity)</span>
+                            </div>
+                        </div>
+                        <!-- Categoría 2 -->
+                        <div>
+                            <h3 class="font-semibold text-goldFractal mb-2 flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-line text-xs"></i> Finanzas Cuantitativas
+                            </h3>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Geometría Fractal</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Retículos Multidimensionales (E8)</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Sucesión de Fibonacci</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Ondas de Elliott</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Preservación de Capital</span>
+                            </div>
+                        </div>
+                        <!-- Categoría 3 -->
+                        <div>
+                            <h3 class="font-semibold text-goldFractal mb-2 flex items-center gap-1.5">
+                                <i class="fa-solid fa-screwdriver-wrench text-xs"></i> Herramientas
+                            </h3>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">MS Excel Avanzado</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">VS Code</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">IoT (Raspberry Pi)</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Linux</span>
+                                <span class="bg-violetFractal/20 text-violet-300 border border-violetFractal/30 px-2 py-1 rounded text-xs">Metodologías Ágiles</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- COLUMNA DERECHA (Experiencia, Educación, Reconocimientos) -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Experiencia Profesional -->
+                <section class="glass-card rounded-2xl p-6 md:p-8">
+                    <h2 class="text-2xl font-bold font-serif text-white mb-6 flex items-center gap-2 border-b border-goldFractal/20 pb-3">
+                        <i class="fa-solid fa-briefcase text-goldFractal"></i> Experiencia Profesional
+                    </h2>
+                    
+                    <div class="relative pl-6 border-l-2 border-violetFractal/50 space-y-8">
+                        <!-- Nodo de Experiencia -->
+                        <div class="relative">
+                            <!-- Indicador de línea temporal -->
+                            <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-goldFractal border-4 border-darkBg shadow"></div>
+                            
+                            <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Presidente Fundador / Director de Proyecto</h3>
+                                    <p class="text-sm text-goldFractal font-medium">Asociación Nacional de Educación Financiera Fractal (ANEFF)</p>
+                                </div>
+                                <span class="bg-violetFractal/40 text-violet-200 border border-violetFractal/40 px-3 py-1 rounded-full text-xs font-mono">
+                                    2021 -- Presente
+                                </span>
+                            </div>
+                            
+                            <ul class="space-y-2.5 text-sm text-gray-300 list-none pl-0">
+                                <li class="flex gap-2">
+                                    <span class="text-goldFractal mt-0.5">•</span>
+                                    <span><strong>Arquitecto del Programa Educativo:</strong> Autor intelectual y gestor de la propuesta "La Inclusión Fractal", logrando su incorporación oficial en los libros de texto de la Nueva Escuela Mexicana (3º de primaria) tras ganar el Concurso Nacional de Educación Financiera.</span>
+                                </li>
+                                <li class="flex gap-2">
+                                    <span class="text-goldFractal mt-0.5">•</span>
+                                    <span><strong>Desarrollo de Infraestructura de Datos:</strong> Diseñé e implementé la arquitectura de la red distribuida local utilizando micro-nodos y servidores descentralizados basados en hardware Raspberry Pi bajo sistemas Linux.</span>
+                                </li>
+                                <li class="flex gap-2">
+                                    <span class="text-goldFractal mt-0.5">•</span>
+                                    <span><strong>Gestión Institucional:</strong> Coordinación y comunicación directa con el Presidente de México, Andrés Manuel López Obrador, y la Secretaria de Educación, Delfina Gómez Álvarez, así como organismos aliados (Enseña por México), para la validación y escalabilidad de los modelos pedagógicos basados en la naturaleza.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Formación Académica -->
+                <section class="glass-card rounded-2xl p-6">
+                    <h2 class="text-xl font-bold font-serif text-white mb-4 flex items-center gap-2 border-b border-goldFractal/20 pb-2">
+                        <i class="fa-solid fa-graduation-cap text-goldFractal"></i> Formación Académica
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-start gap-4 text-sm">
+                            <div>
+                                <h3 class="font-bold text-white">Curso de Trading con Fractales "Alpha"</h3>
+                                <p class="text-gray-400">VIBLO — Modalidad Asincrónica (Token Viblo)</p>
+                            </div>
+                            <span class="text-xs font-mono text-goldFractal bg-goldFractal/10 px-2 py-1 rounded">2020</span>
+                        </div>
+                        <div class="flex justify-between items-start gap-4 text-sm">
+                            <div>
+                                <h3 class="font-bold text-white">Bachillerato General</h3>
+                                <p class="text-gray-400">EPOEM 141 "Leones Blancos" — San Buenaventura, Edo. Méx.</p>
+                            </div>
+                            <span class="text-xs font-mono text-goldFractal bg-goldFractal/10 px-2 py-1 rounded">2014 -- 2016</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Certificaciones y Reconocimientos -->
+                <section class="glass-card rounded-2xl p-6">
+                    <h2 class="text-xl font-bold font-serif text-white mb-4 flex items-center gap-2 border-b border-goldFractal/20 pb-2">
+                        <i class="fa-solid fa-award text-goldFractal"></i> Certificaciones y Reconocimientos
+                    </h2>
+                    <div class="space-y-4 text-sm">
+                        <div class="p-3.5 rounded-xl bg-violetFractal/10 border border-violetFractal/20">
+                            <h3 class="font-bold text-goldFractal flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-trophy"></i> Mérito Educativo (1er Lugar Nacional)
+                            </h3>
+                            <p class="text-gray-300">Organizado por <strong>Enseña por México</strong> por el ensayo original titulado <em>"La inclusión fractal en el sistema educativo; un futuro global de cambio universal"</em>.</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-bold text-white mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-certificate text-goldFractal"></i> Cursos Acreditados — Banco Santander X
+                            </h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-center">
+                                <div class="p-2 bg-darkBg/60 rounded border border-goldFractal/10 text-gray-300">Inteligencia Artificial</div>
+                                <div class="p-2 bg-darkBg/60 rounded border border-goldFractal/10 text-gray-300">Estrategia Corporativa</div>
+                                <div class="p-2 bg-darkBg/60 rounded border border-goldFractal/10 text-gray-300">Liderazgo y Talento</div>
+                                <div class="p-2 bg-darkBg/60 rounded border border-goldFractal/10 text-gray-300">Gestión y Operaciones</div>
+                                <div class="p-2 bg-darkBg/60 rounded border border-goldFractal/10 text-gray-300">Growth & Ciberseguridad</div>
+                                <div class="p-2 bg-darkBg/60 rounded border border-goldFractal/10 text-gray-300">Tecnología e Innovación</div>
+                                <div class="p-2 bg-darkBg/60 rounded border border-goldFractal/10 text-gray-300 sm:col-span-3">Finanzas y Negocios</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER DE CRÉDITOS Y MODELADO -->
+    <footer class="no-print mt-12 py-6 border-t border-violetFractal/20 text-center text-xs text-gray-500">
+        <p>Diseño Web Fractal &copy; 2026. Optimizado para capturas de pantalla largas y exportación digital.</p>
+        <p class="mt-1 text-goldFractal/60 font-serif">"La naturaleza se escribe en geometría fractal."</p>
+    </footer>
+
+    <!-- LÓGICA DE FRACTAL DE JULIA INTERACTIVO -->
+    <script>
+        const canvas = document.getElementById('juliaCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Estado del Fractal
+        let width, height;
+        let c_r = -0.7; // Constante real inicial (modificado con input)
+        let c_i = 0.27015; // Constante imaginaria inicial
+        let max_iterations = 45; // Iteraciones de render (ajustado para rendimiento)
+        let animate = false;
+        let time = 0;
+
+        // Inputs de control
+        const sliderCr = document.getElementById('paramCr');
+        const sliderCi = document.getElementById('paramCi');
+        const valCrDisplay = document.getElementById('valCr');
+        const valCiDisplay = document.getElementById('valCi');
+        const btnToggle = document.getElementById('toggleAnimation');
+        const playIcon = document.getElementById('playIcon');
+        const btnText = document.getElementById('btnText');
+
+        // Sincronizar inputs
+        sliderCr.addEventListener('input', (e) => {
+            c_r = parseFloat(e.target.value);
+            valCrDisplay.textContent = c_r.toFixed(2);
+            if (!animate) requestAnimationFrame(drawJulia);
+        });
+
+        sliderCi.addEventListener('input', (e) => {
+            c_i = parseFloat(e.target.value);
+            valCiDisplay.textContent = c_i.toFixed(2);
+            if (!animate) requestAnimationFrame(drawJulia);
+        });
+
+        btnToggle.addEventListener('click', () => {
+            animate = !animate;
+            if (animate) {
+                playIcon.className = "fa-solid fa-pause";
+                btnText.textContent = "Pausar";
+                animateLoop();
+            } else {
+                playIcon.className = "fa-solid fa-play";
+                btnText.textContent = "Animar";
+            }
+        });
+
+        // Ajustar Canvas al tamaño de ventana
+        function resize() {
+            // Bajamos la resolución interna del canvas para mantener 60 FPS estables
+            // pero escalamos visualmente con CSS para que se vea genial y pixel-art
+            width = canvas.width = window.innerWidth / 3;
+            height = canvas.height = window.innerHeight / 3;
+            drawJulia();
+        }
+
+        // Renderizado del Fractal de Julia f(z) = z^2 + c
+        function drawJulia() {
+            const imgData = ctx.createImageData(width, height);
+            const data = imgData.data;
+
+            // Escala de mapeo de coordenadas complejas (mantenemos zoom amplio)
+            const zoom = 1.3;
+            const moveX = 0.0;
+            const moveY = 0.0;
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    // Mapear píxeles a números complejos
+                    let zx = 1.5 * (x - width / 2) / (0.5 * zoom * width) + moveX;
+                    let zy = (y - height / 2) / (0.5 * zoom * height) + moveY;
+
+                    let i = max_iterations;
+                    while (zx * zx + zy * zy < 4 && i > 0) {
+                        // Formula: z_new = z_old^2 + c
+                        let tmp = zx * zx - zy * zy + c_r;
+                        zy = 2.0 * zx * zy + c_i;
+                        zx = tmp;
+                        i--;
+                    }
+
+                    // Calcular índice de píxel en array plano
+                    let pix = (x + y * width) * 4;
+
+                    if (i === 0) {
+                        // Interior del conjunto (Fondo oscuro)
+                        data[pix] = 11;     // R
+                        data[pix + 1] = 9;   // G
+                        data[pix + 2] = 20;  // B
+                        data[pix + 3] = 255; // A
+                    } else {
+                        // Bordes coloreados según las iteraciones (Estética violeta y oro)
+                        let factor = (max_iterations - i) / max_iterations;
+                        
+                        // Paleta personalizada (Violetas a Dorados)
+                        data[pix] = Math.floor(factor * 75 + (1 - factor) * 218);  // R
+                        data[pix + 1] = Math.floor(factor * 0 + (1 - factor) * 165); // G
+                        data[pix + 2] = Math.floor(factor * 130 + (1 - factor) * 32); // B
+                        data[pix + 3] = Math.floor(factor * 200 + 55);                // Opacidad
+                    }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        // Bucle de animación armónica
+        function animateLoop() {
+            if (!animate) return;
+            
+            time += 0.005;
+            // Variación matemática armónica para simular flujo dinámico
+            c_r = -0.7 + Math.sin(time) * 0.05;
+            c_i = 0.27015 + Math.cos(time * 1.5) * 0.05;
+
+            // Actualizar interfaz visual
+            sliderCr.value = c_r;
+            sliderCi.value = c_i;
+            valCrDisplay.textContent = c_r.toFixed(2);
+            valCiDisplay.textContent = c_i.toFixed(2);
+
+            drawJulia();
+            requestAnimationFrame(animateLoop);
+        }
+
+        // Eventos
+        window.addEventListener('resize', resize);
+        
+        // Carga inicial
+        window.onload = function() {
+            resize();
+            // Pequeña animación inicial para darle vida
+            animate = true;
+            playIcon.className = "fa-solid fa-pause";
+            btnText.textContent = "Pausar";
+            animateLoop();
+        };
+    </script>
+</body>
+</html>
