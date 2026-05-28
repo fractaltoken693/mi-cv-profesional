@@ -1,3 +1,19 @@
+- name: Compilar CV en PDF usando XeLaTeX
+    uses: xu-cheng/latex-action@v3
+    with:
+      root_file: main.tex
+      latexmk_use_xelatex: true
+
+  - name: Guardar PDF automaticamente en el repositorio
+    uses: stefanzweifel/git-auto-commit-action@v5
+    with:
+      commit_message: "Automated: PDF del CV actualizado con foto"
+      file_pattern: 'main.pdf'
+
+
+eof
+
+```latex:Curriculum Vitae:main.tex
 \documentclass[11pt,a4paper,sans]{moderncv}
 
 % --- 1. ESTILO MODERNCV ---
@@ -87,27 +103,25 @@
 
 \makecvtitle
 
-% --- INSERCIÓN DE LA FOTO REAL DE PERFIL EN LA ESQUINA SUPERIOR IZQUIERDA ---
+% --- FOTO REAL DE PERFIL EN LA ESQUINA SUPERIOR IZQUIERDA ---
 \begin{tikzpicture}[remember picture, overlay]
     \node[anchor=north west] at ($(current page.north west) + (1.2cm, -1.2cm)$) {
         \begin{tikzpicture}
-            % Dibujamos un contenedor con bordes redondeados y sombra para albergar la imagen
             \begin{scope}
                 \clip[rounded corners=10pt] (0,0) rectangle (3.5, 4.5);
                 \node[anchor=center] at (1.75, 2.25) {
                     \IfFileExists{IMG_20260127_051656.jpg}{
                         \includegraphics[width=3.5cm, height=4.5cm, keepaspectratio=false]{IMG_20260127_051656.jpg}
                     }{
-                        % Respaldo elegante si no detecta el archivo local en el mismo directorio
+                        % Respaldo dinámico por si la foto no estuviera lista
                         \begin{tikzpicture}
                             \fill[color1!10] (0,0) rectangle (3.5, 4.5);
                             \draw[color1!40, dashed, thick, rounded corners=10pt] (0,0) rectangle (3.5, 4.5);
-                            \node[color1!60, align=center] at (1.75, 2.25) {\small\faUser\\ \vspace{0.2cm}\textbf{Añadir Foto}};
+                            \node[color1!60, align=center] at (1.75, 2.25) {\small\faUser\\ \vspace{0.2cm}\textbf{FOTO}};
                         \end{tikzpicture}
                     }
                 };
             \end{scope}
-            % Marco exterior refinado en color Violeta Fractal
             \draw[color1, thick, rounded corners=10pt] (0,0) rectangle (3.5, 4.5);
         \end{tikzpicture}
     };
@@ -124,7 +138,7 @@
 \begin{itemize}
     \item \textbf{Arquitecto del Programa Educativo:} Autor intelectual y gestor de la propuesta ``La Inclusión Fractal'', logrando su incorporación oficial en los libros de texto de la Nueva Escuela Mexicana (3º de primaria) tras ganar el Concurso Nacional de Educación Financiera.
     \item \textbf{Desarrollo de Infraestructura de Datos:} Diseñé e implementé la arquitectura de la red distribuida local utilizando micro-nodos y servidores descentralizados basados en hardware Raspberry Pi bajo sistemas Linux.
-    \item \textbf{Gestión Institucional:} Coordinación y comunicación directa con el Presidente de México, Andrés Manuel López Obrador, y la Secretaria de Educación, Delfina Gómez Álvarez, así como organismos aliados (Enseña por México), para la validación y escalabilidad de modelos pedagógicos basados en la naturaleza.
+    \item \textbf{Gestión Institucional:} Coordinación y comunicación directa con el Presidente de México, Andrés Manuel López Obrador, y la Secretaria de Educación, Delfina Gómez Álvarez, así como organisms aliados (Enseña por México), para la validación y escalabilidad de modelos pedagógicos basados en la naturaleza.
 \end{itemize}
 }
 
@@ -165,3 +179,4 @@
 \end{itemize}
 
 \end{document}
+
