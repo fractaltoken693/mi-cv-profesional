@@ -64,14 +64,18 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #DAA520;
         }
-        /* Print and Screenshot Optimization */
+        
         @media print {
+            @page {
+                margin: 0; /* Elimina por completo los encabezados (título/fecha) y pies de página (URL/ruta de archivo con tu correo) */
+            }
             .no-print {
                 display: none !important;
             }
             body {
                 background: white !important;
                 color: black !important;
+                padding: 1.5cm; /* Añade un margen interno limpio en la hoja para evitar que el texto toque el borde */
             }
             .glass-card {
                 background: white !important;
